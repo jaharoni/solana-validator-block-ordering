@@ -1,0 +1,11 @@
+services:
+  solana-validator-ordering:
+    build: .
+    container_name: solana-validator-ordering
+    environment:
+      - SOLANA_RPC_URL=${SOLANA_RPC_URL:-https://api.mainnet-beta.solana.com}
+      - SOLANA_KEYPAIR_PATH=${SOLANA_KEYPAIR_PATH:-}
+      - SOLANA_PRIVATE_KEY_B58=${SOLANA_PRIVATE_KEY_B58:-}
+    volumes:
+      - ./data:/app/data
+    command: ["--dry-run", "--validators", "8", "--max-spend-sol", "0.05", "--output", "/app/data/mainnet_validator_blocks_raw.json"]

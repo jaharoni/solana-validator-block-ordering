@@ -1,0 +1,6 @@
+*.key
+*.json.secret
+*keypair*.json
+.env
+__pycache__/
+*.pyc
