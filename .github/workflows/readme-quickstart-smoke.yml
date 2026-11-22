@@ -1,0 +1,31 @@
+name: README Quickstart Clean-Room Smoke Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  readme-quickstart-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Verify repository trust files, analyzer CLI, and Epoch 1076 dataset integrity
+        run: |
+          set -e
+          test -f LICENSE
+          test -f CONTRIBUTING.md
+          test -f REPORT.md
+          python3 -m py_compile analyzer.py
+          python3 analyzer.py --help
+          python3 -c "import json, pathlib; d = json.loads(pathlib.Path('data/mainnet_validator_blocks_raw.json').read_text(encoding='utf-8')); assert d.get('validator_count_analyzed', 0) >= 6 and 'alpenglow_regime' in d; print('[PASS] Epoch 1076 dataset verified:', d['validator_count_analyzed'], 'validators')"

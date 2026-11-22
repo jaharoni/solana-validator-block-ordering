@@ -1,22 +1,39 @@
 # Inside the Block: How Solana Validators Order Transactions (Post-Alpenglow Mainnet Suite)
 
-Reproducible empirical measurement suite and dataset investigating how Solana Mainnet validators running distinct client software versions (`Agave/Jito 4.3.2`, `4.4.0`, `4.4.0-rc.1`, and `Agave CalVer 26.10.5`) order transactions inside a block following the **October 21, 2026 Alpenglow consensus upgrade**.
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
+[![Python 3.11+ Zero Deps](https://img.shields.io/badge/Python-3.11%2B%20(Zero%20Deps)-3b82f6.svg)](#1-quick-start-one-command-reproducibility)
+
+Reproducible empirical measurement suite and raw Epoch 1076 dataset investigating how Solana Mainnet validators running distinct client versions (`Agave/Jito 4.3.2`, `4.4.0`, `4.4.0-rc.1`, and `Agave CalVer 26.10.5`) order transactions inside a block following the **October 21, 2026 Alpenglow consensus upgrade**.
+
+Links: [Empirical Findings Report (`REPORT.md`)](./REPORT.md) · [Raw Dataset](./data/mainnet_validator_blocks_raw.json) · [Contributing](./CONTRIBUTING.md) · [License (MIT)](./LICENSE)
 
 ---
 
 ## 1. Quick Start (One-Command Reproducibility)
 
-By default, the container executes in **`--dry-run` mode** (zero SOL spent, no private key required in repo, live Mainnet RPC verification + probe schedule simulation):
+Requirements: Python 3.11+ (zero external dependencies) or Docker. By default, **`--dry-run` mode** spends zero SOL and requires no private key. Write output to `/tmp` so you do not overwrite the committed Epoch 1076 reference dataset:
+
+```bash
+git clone https://github.com/jaharoni/solana-validator-block-ordering.git
+cd solana-validator-block-ordering
+
+# Verify CLI and inspect committed Epoch 1076 dataset offline
+python3 analyzer.py --help
+
+# Run a fresh Mainnet dry-run sample without overwriting data/mainnet_validator_blocks_raw.json
+python3 analyzer.py --dry-run --validators 8 --output /tmp/mainnet_sample.json
+```
+
+Or run in Docker:
 
 ```bash
 docker compose up --build
 ```
 
-Or directly via Python 3.11+:
+### Troubleshooting the First Run
 
-```bash
-python3 analyzer.py --dry-run --validators 8 --output data/mainnet_validator_blocks_raw.json
-```
+- **`HTTP 429 Too Many Requests` or fewer than 8 validators analyzed**: Public Solana Mainnet RPC (`https://api.mainnet-beta.solana.com`) rate-limits full `getBlock` queries. Set `SOLANA_RPC_URL="https://<your-rpc-endpoint>"` before running `analyzer.py --dry-run`.
+- **Avoiding dataset overwrites**: Pass `--output /tmp/mainnet_sample.json` if you want to keep `data/mainnet_validator_blocks_raw.json` clean in `git status`.
 
 ### Live Probe Mode (Behind Explicit Flag & Hard `0.05 SOL` Spend Cap)
 
